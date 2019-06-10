@@ -207,7 +207,7 @@ func userInputHandler()  {
 }
 
 
-func readDeviceID() (DeviceId string, err error){
+func readDeviceID() (DeviceID string, err error){
 
 	file, _ := os.Open("config.json")
 	defer file.Close()
@@ -216,7 +216,7 @@ func readDeviceID() (DeviceId string, err error){
 	configuration := Configuration{}
 	error := decoder.Decode(&configuration)
 
-	return configuration.DeviceId, error
+	return configuration.DeviceID, error
 }
 
 
