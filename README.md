@@ -11,7 +11,8 @@ Copy the `config.json.example` file to `src/chtest/config.json`
 ie,
 
 ```bash
-cp config.json.example src/chtest/config.json
+$ cd <project_path>
+$ cp config.json.example src/chtest/config.json
 ```
 
 Edit config.json with value for client - ie change the value of deviceID:
@@ -21,6 +22,18 @@ Edit config.json with value for client - ie change the value of deviceID:
   "deviceID": "0x0001"
 }
 ```
+
+## Requirements
+
+Get the Golang libraries
+
+```bash
+$ export GOPATH=`pwd`
+$ go get chtest
+
+```
+
+
 
 ## Client
 
@@ -40,7 +53,8 @@ Server can be run locally, to see unpacking of date and deviceID by typing
 $ go run server.go
 ```
 
+## Build
 
-
+An executable can be built for the 
 
 [1]: https://github.com/gorilla/websocket/tree/master/examples/echo
