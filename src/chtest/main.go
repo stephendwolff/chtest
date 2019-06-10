@@ -17,13 +17,13 @@ import (
 )
 
 type Configuration struct{
-	DeviceId	string
+	DeviceID	string
 }
 
 type Message struct {
-	UUID string
-	TimeStamp int64
-	Line string
+	UUID 		string
+	TimeStamp 	int64
+	Line 		string
 }
 
 var outgoingMessages = make(chan Message)
@@ -87,7 +87,7 @@ func main() {
 	}
 	defer c.Close()
 
-	log.Printf("You are now commected to %s", u.String())
+	log.Printf("You are now connected to %s, type your message and hit return to send", u.String())
 
 	done := make(chan struct{})
 
@@ -102,6 +102,7 @@ func main() {
 			log.Printf("recv: %s", message)
 		}
 	}()
+
 
 	/*
 	They will instead show the user a text input where messages can be typed.
@@ -124,6 +125,7 @@ func main() {
 			*/
 
 			var UUIDpart1 = strconv.FormatInt(message.TimeStamp, 16)
+
 			// Could use AppendInt?
 			var UUID = join(UUIDpart1, deviceID[2:])
 
@@ -155,6 +157,7 @@ func main() {
 			}
 			select {
 			case <-done:
+			// wait a second
 			case <-time.After(time.Second):
 			}
 			return
