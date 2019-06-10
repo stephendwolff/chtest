@@ -78,14 +78,16 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: addr, Path: "/echo"}
-	log.Printf("connecting to %s", u.String())
+	u := url.URL{Scheme: "ws", Host: addr, Path: "/chtest"}
+	log.Printf("Connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
 	defer c.Close()
+
+	log.Printf("You are now commected to %s", u.String())
 
 	done := make(chan struct{})
 
@@ -122,6 +124,7 @@ func main() {
 			*/
 
 			var UUIDpart1 = strconv.FormatInt(message.TimeStamp, 16)
+			// Could use AppendInt?
 			var UUID = join(UUIDpart1, deviceID[2:])
 
 			messageJSON, err := json.Marshal(struct {
@@ -180,6 +183,7 @@ func getIPAddress() (IPAddress string, err error) {
 }
 
 
+
 func userInputHandler()  {
 	s := bufio.NewScanner(os.Stdin)
 	for {
@@ -211,6 +215,7 @@ func readDeviceID() (DeviceId string, err error){
 
 	return configuration.DeviceId, error
 }
+
 
 func join(strs ...string) string {
 	var sb strings.Builder
