@@ -9,12 +9,13 @@
 package main
 
 import (
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"html/template"
-	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -54,7 +55,7 @@ func chtest(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(strings.NewReader(string(messageBytes)))
 		var message struct {
 			Message  string `json:"message"`
-			UUID     string `json:"uuid"`
+			UUID     int64 `json:"uuid"`
 		}
 		err = decoder.Decode(&message)
 		if err != nil {
@@ -62,16 +63,22 @@ func chtest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// make byte array and put the UUID bytes into it
+		b := make([]byte, 8)
+		binary.LittleEndian.PutUint64(b, uint64(message.UUID))
 
-		// spec said 6 bytes for seconds since 1970, whereas converting to hex, i get 8 bytes (as hex encoding)
-		var timestampStr = message.UUID[:8]
-		var deviceIDStr = message.UUID[8:]
+		// grab the device ID
+		d := make([]byte, 2)
+		d[0] = b[6]
+		d[1] = b[7]
 
-		unixTimestamp, err := strconv.ParseInt(timestampStr, 16, 64)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		// zero the device ID bytes to avoid sending us into the future
+		b[6] = 0
+		b[7] = 0
+
+		// get bytes into more usable types
+		unixTimestamp := int64(binary.LittleEndian.Uint64(b))
+		deviceIDStr := hex.EncodeToString(d)
 		tm := time.Unix(unixTimestamp, 0)
 
 		// log when message is received, from whom, and when

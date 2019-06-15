@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"time"
 
@@ -124,14 +125,32 @@ func main() {
 				The second device should be hosted on an AWS EC2 (free tier), please send the IP address with the test
 			*/
 
-			var UUIDpart1 = strconv.FormatInt(message.TimeStamp, 16)
+			// Make an 8 byte array for UUID
+			b := make([]byte, 8)
 
-			// Could use AppendInt?
-			var UUID = join(UUIDpart1, deviceID[2:])
+			// put the timestamp into the array, at start (little endian).
+			// incidentally, unix timestamps (32bit) run out in 2038!
+			binary.LittleEndian.PutUint64(b, uint64(message.TimeStamp))
+			// log.Println("timestamp bytes:", b)
+
+			// which part of deviceID string to encode?
+			deviceIDHexStr := deviceID[2:]
+			// log.Println("device id hex:", deviceIDHexStr)
+
+			// get the device ID bytes
+			d, err := hex.DecodeString(deviceIDHexStr)
+			// log.Println("device id bytes:", d)
+
+			// combine timestamp and device id bytes
+			b[6] = d[0]
+			b[7] = d[1]
+
+			// make a new int64 with the bytes
+			UUID := int64(binary.LittleEndian.Uint64(b))
 
 			messageJSON, err := json.Marshal(struct {
 				Message   	string `json:"message"`
-				UUID    	string `json:"uuid"`
+				UUID    	int64 `json:"uuid"`
 			}{
 				message.Line,
 				UUID,
